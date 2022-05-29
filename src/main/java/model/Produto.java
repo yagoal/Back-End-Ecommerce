@@ -1,50 +1,63 @@
 package model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-
 
 @Entity
 @Table(name = "produtos")
-
+@NamedQuery(name = "Produto.produtosPorCategoria", query = "SELECT p FROM Produto p WHERE p.categoria.id.nome = :nome")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Produto {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	private int id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+	private Integer qtd;
 	private String nome;
 	private String descricao;
-	private double preco;
-	private int quantidade;
+	private BigDecimal preco;
 	private LocalDate dataCadastro = LocalDate.now();
+
+	@ManyToOne
 	private Categoria categoria;
 
 	public Produto() {
-		super();
 	}
 
-	
-	public Produto(String nome, String descricao, double preco, int quantidade, Categoria categoria) {
-		super();
+	public Produto(Integer qtd, String nome, String descricao, BigDecimal preco, Categoria categoria) {
+		this.qtd = qtd;
 		this.nome = nome;
 		this.descricao = descricao;
 		this.preco = preco;
-		this.quantidade = quantidade;
 		this.categoria = categoria;
 	}
+	
+	public Integer getQtd() {
+		return qtd;
+	}
 
+	public void setQtd(Integer qtd) {
+		this.qtd = qtd;
+	}
 
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -64,33 +77,28 @@ public class Produto {
 		this.descricao = descricao;
 	}
 
-	public double getPreco() {
+	public BigDecimal getPreco() {
 		return preco;
 	}
 
-	public void setPreco(double preco) {
+	public void setPreco(BigDecimal preco) {
 		this.preco = preco;
-	}
-
-	public int getQuantidade() {
-		return quantidade;
-	}
-
-	public void setQuantidade(int quantidade) {
-		this.quantidade = quantidade;
 	}
 
 	public LocalDate getDataCadastro() {
 		return dataCadastro;
 	}
 
+	public void setDataCadastro(LocalDate dataCadastro) {
+		this.dataCadastro = dataCadastro;
+	}
+
 	public Categoria getCategoria() {
 		return categoria;
 	}
 
-	public void setCategoria(Categoria categoria) {
+	public void setCategoria( Categoria categoria) {
 		this.categoria = categoria;
 	}
 
-	
 }
