@@ -22,7 +22,6 @@ public class Funcionario extends Usuario {
 		return nivelDeAcesso;
 	}
 
-
 	public void setNivelDeAcesso(Integer nivelDeAcesso) {
 		this.nivelDeAcesso = nivelDeAcesso;
 	}
