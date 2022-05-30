@@ -16,7 +16,7 @@ public class ClienteDao {
 		this.em.persist(cliente);
 	}
 	
-	public Cliente buscarPorId(Long id) {
+	public Cliente buscarPorId(String id) {
 		return em.find(Cliente.class, id);
 	}
 

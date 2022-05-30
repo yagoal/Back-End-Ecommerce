@@ -35,7 +35,6 @@ public class CadastroDePedido {
 		ClienteDao clienteDao = new ClienteDao(em);
 		PedidoDao pedidoDao = new PedidoDao(em);
 		
-		Cliente clienteTeste = clienteDao.buscarPorId(1l);
 		
 		System.out.println("Entrar como Cliente ou Funcionário? Digite 0 para Funcionário - Qualquer outro número para Cliente");
 		
@@ -45,239 +44,252 @@ public class CadastroDePedido {
 		
 		System.out.println("Digite seu usuário");
 		String usuario = leitor.next();
-			
+		
 		System.out.println("Digite sua senha");
 		String senha = leitor.next();
-			
-		System.out.println("Usuário: " + usuario + " logado com sucesso");
 		
-		int contPagamento = 0;
-		int contCancelamento = 0;
-		
-		if (opt != 0) {
-			
-			while (true) {
-				System.out.println("Digite a Opcao Referente ao que deseja fazer");
-				System.out.println("1: Para fazer um pedido");
-				System.out.println("2: Para pagar um pedido");
-				System.out.println("3: Para cancelar um pedido");
-				System.out.println("Qualquer outro para sair");
-				int optUsuario = leitor.nextInt();
-				
-				if (optUsuario == 1) {
-					
-					Pedido pedido = new Pedido(clienteTeste);
-					
-					System.out.println("Produtos Disponíveis");
-					produtoDao.imprimirCatalogo();
-					
-					System.out.println("Quantos Itens você deseja pedir ?");
-					int qtd = leitor.nextInt();
-					
-					for (int i = 0; i < qtd; i++) {
-						
-						System.out.println("Item  " + i+1 + " Digite o id do produto que deseja adicionar");
-						long id = leitor.nextLong();
-						Produto produto = produtoDao.buscarPorId(id);
-						
-						System.out.println("Digite a quantidade de " + produto.getNome()+ "que você deseja adicionar ao pedido");
-						int qtdProdutos = leitor.nextInt();
-						pedido.adicionarItem(new ItemPedido(qtdProdutos, pedido, produto));
-						
-					}
-					
-					BigDecimal valor = pedido.getValorTotal();
-					System.out.println("Valor Total do pedido: R$ " + valor);
-					System.out.println("Deseja pagar o pedido ?");
-					System.out.println("1 Para Sim ou qualquer outra tecla para não");
-					
-					int optPagamento = leitor.nextInt();
-					
-					if (optPagamento == 1) {
-						pedido.pagarPedido();
-					}
-					
-					em.getTransaction().begin();
-					pedidoDao.cadastrar(pedido);
-					em.getTransaction().commit();
-					
-					long numPedido = pedido.getId();
-					System.out.println("Pedido registrado com o número: " + numPedido);
-					
-		
-				}
-				
-				else if (optUsuario == 2) {
-					/* 
-					 * Mocks para fins de testar o pagamento dos pedidos, caso queira obter mais testes basta incluir mais mocks 
-					 * de pedidos, produtos e/ou clientes ou cadastrar manu
-					*/
-					
-					Produto produto = produtoDao.buscarPorId(1l);
-					Produto produto2 = produtoDao.buscarPorId(2l);
-					Produto produto3 = produtoDao.buscarPorId(3l);
+		Cliente clienteTeste = clienteDao.buscarPorId(usuario);
 
-					Pedido pedido = new Pedido(clienteTeste);
-					Pedido pedido2 = new Pedido(clienteTeste);
+		try {
+			
+			if (clienteTeste.autenticacao(usuario, senha)) {
 					
-					pedido.adicionarItem(new ItemPedido(1, pedido, produto));
-					pedido.adicionarItem(new ItemPedido(2, pedido, produto2));
-					pedido2.adicionarItem(new ItemPedido(3, pedido2, produto3));
-					
-					if (contPagamento == 0) {
-						em.getTransaction().begin();
-						pedidoDao.cadastrar(pedido);
-						pedidoDao.cadastrar(pedido2);
-						em.getTransaction().commit();
-						//controlador para fins de não cadastrar novamente no banco de dados e continuar pagando os pedidos até tornar a lista vazia
-						contPagamento ++;
-					}
+				System.out.println("Usuário: " + usuario + " logado com sucesso");
 				
-					List<Pedido> pedidosPendentes = pedidoDao.buscarPedidosPendentes(StatusPedido.PENDENTE);
+				int contPagamento = 0;
+				int contCancelamento = 0;
+				
+				if (opt != 0) {
 					
-					if (pedidosPendentes.isEmpty()) {
-						System.out.println();
-						System.out.println("Você não possui pedidos a serem pagos, por favor faça um pedido!");
-						System.out.println();
-					} else {
+					while (true) {
+						System.out.println("Digite a Opcao Referente ao que deseja fazer");
+						System.out.println("1: Para fazer um pedido");
+						System.out.println("2: Para pagar um pedido");
+						System.out.println("3: Para cancelar um pedido");
+						System.out.println("Qualquer outro para sair");
+						int optUsuario = leitor.nextInt();
 						
-						pedidoDao.imprimirPedidos(pedidosPendentes);
-						System.out.println("Digite o numero do pedido que deseja pagar");
-						long optPagamento = leitor.nextLong();
-						
-						Pedido pedidoPagamento = pedidoDao.buscarPorId(optPagamento);
-						List<ItemPedido> itens = pedidoPagamento.getItens();
-						
-						System.out.println("O pedido número: " + optPagamento + " tem os seguintes itens:");
-						System.out.println("------------------------------------------------------------------");
-						for (ItemPedido i : itens) {
-							String nome = i.getProduto().getNome();
-							String descricao = i.getProduto().getDescricao();
-							int qtdItens = i.getQuantidade();
-							BigDecimal valorUnitario = i.getPrecoUnitario();
-							System.out.println("Quantidade: " + qtdItens + " | Valor Unitário: R$ " + valorUnitario + " | Item: " + nome + " " + descricao );
-							System.out.println("------------------------------------------------------------------");
-						}	
-						
-						System.out.println("Tem certeza que deseja pagar este pedido ? 1 para SIM, Quaquer para não");
-						int optPagamentoConfirm = leitor.nextInt();
-						
-						if (optPagamentoConfirm == 1) {
+						if (optUsuario == 1) {
 							
-							pedidoPagamento.pagarPedido();
+							Pedido pedido = new Pedido(clienteTeste);
+							
+							System.out.println("Produtos Disponíveis");
+							produtoDao.imprimirCatalogo();
+							
+							System.out.println("Quantos Itens você deseja pedir ?");
+							int qtd = leitor.nextInt();
+							
+							for (int i = 0; i < qtd; i++) {
+								
+								int numItem = i+1;
+								System.out.println("Item  " + 0+numItem + " Digite o id do produto que deseja adicionar");
+								long id = leitor.nextLong();
+								Produto produto = produtoDao.buscarPorId(id);
+								
+								System.out.println("Digite a quantidade de " + produto.getNome() + " " + produto.getDescricao() + " que você deseja adicionar ao pedido");
+								int qtdProdutos = leitor.nextInt();
+								pedido.adicionarItem(new ItemPedido(qtdProdutos, pedido, produto));
+								
+							}
+							
+							BigDecimal valor = pedido.getValorTotal();
+							System.out.println("Valor Total do pedido: R$ " + valor);
+							System.out.println("Deseja pagar o pedido ?");
+							System.out.println("1 Para Sim ou qualquer outra tecla para não");
+							
+							int optPagamento = leitor.nextInt();
+							
+							if (optPagamento == 1) {
+								pedido.pagarPedido();
+							}
+							
 							em.getTransaction().begin();
-							pedidoDao.atualizar(pedidoPagamento);
+							pedidoDao.cadastrar(pedido);
 							em.getTransaction().commit();
 							
+							long numPedido = pedido.getId();
+							System.out.println("Pedido registrado com o número: " + numPedido);
 							
-							pedidosPendentes = pedidoDao.buscarPedidosPendentes(StatusPedido.PENDENTE);
-							if (!pedidosPendentes.isEmpty()) {
-								pedidoDao.imprimirPedidos(pedidosPendentes);
+				
+						}
+						
+						else if (optUsuario == 2) {
+							
+							/* 
+							 * Mocks para fins de testar o pagamento dos pedidos, caso queira obter mais testes basta incluir mais mocks 
+							 * de pedidos, produtos e/ou clientes ou cadastrar manu
+							*/
+							
+							Produto produto = produtoDao.buscarPorId(1l);
+							Produto produto2 = produtoDao.buscarPorId(2l);
+							Produto produto3 = produtoDao.buscarPorId(3l);
+		
+							Pedido pedido = new Pedido(clienteTeste);
+							Pedido pedido2 = new Pedido(clienteTeste);
+							
+							pedido.adicionarItem(new ItemPedido(1, pedido, produto));
+							pedido.adicionarItem(new ItemPedido(2, pedido, produto2));
+							pedido2.adicionarItem(new ItemPedido(3, pedido2, produto3));
+							
+							if (contPagamento == 0) {
+								em.getTransaction().begin();
+								pedidoDao.cadastrar(pedido);
+								pedidoDao.cadastrar(pedido2);
+								em.getTransaction().commit();
+								//controlador para fins de não cadastrar novamente no banco de dados e continuar pagando os pedidos até tornar a lista vazia
+								contPagamento ++;
+							}
+						
+							List<Pedido> pedidosPendentes = pedidoDao.buscarPedidosPendentes(StatusPedido.PENDENTE);
+							
+							if (pedidosPendentes.isEmpty()) {
+								System.out.println();
+								System.out.println("Você não possui pedidos a serem pagos, por favor faça um pedido!");
+								System.out.println();
 							} else {
-								System.out.println("Você não possui pedidos a serem pagos");
+								
+								pedidoDao.imprimirPedidos(pedidosPendentes);
+								System.out.println("Digite o numero do pedido que deseja pagar");
+								long optPagamento = leitor.nextLong();
+								
+								Pedido pedidoPagamento = pedidoDao.buscarPorId(optPagamento);
+								List<ItemPedido> itens = pedidoPagamento.getItens();
+								
+								System.out.println("O pedido número: " + optPagamento + " tem os seguintes itens:");
+								System.out.println("------------------------------------------------------------------");
+								for (ItemPedido i : itens) {
+									String nome = i.getProduto().getNome();
+									String descricao = i.getProduto().getDescricao();
+									int qtdItens = i.getQuantidade();
+									BigDecimal valorUnitario = i.getPrecoUnitario();
+									System.out.println("Quantidade: " + qtdItens + " | Valor Unitário: R$ " + valorUnitario + " | Item: " + nome + " " + descricao );
+									System.out.println("------------------------------------------------------------------");
+								}	
+								
+								System.out.println("Tem certeza que deseja pagar este pedido ? 1 para SIM, Quaquer para não");
+								int optPagamentoConfirm = leitor.nextInt();
+								
+								if (optPagamentoConfirm == 1) {
+									
+									pedidoPagamento.pagarPedido();
+									em.getTransaction().begin();
+									pedidoDao.atualizar(pedidoPagamento);
+									em.getTransaction().commit();
+									
+									
+									pedidosPendentes = pedidoDao.buscarPedidosPendentes(StatusPedido.PENDENTE);
+									if (!pedidosPendentes.isEmpty()) {
+										pedidoDao.imprimirPedidos(pedidosPendentes);
+									} else {
+										System.out.println("Você não possui pedidos a serem pagos");
+									}
+								}
+								
+								
 							}
 						}
 						
-						
-					}
-				}
-				
-				else if (optUsuario == 3) {
-					
-					/* 
-					 * Mocks para fins testar o cancelamento dos pedidos, caso queira obter mais testes basta incluir mais mocks 
-					 * de pedidos, produtos e/ou clientes ou cadastrar manu
-					*/
-					
-					Produto produto2 = produtoDao.buscarPorId(2l);
-					Produto produto3 = produtoDao.buscarPorId(3l);
-
-					Pedido pedido = new Pedido(clienteTeste);
-					Pedido pedido2 = new Pedido(clienteTeste);
-					
-					pedido.adicionarItem(new ItemPedido(2, pedido, produto2));
-					pedido2.adicionarItem(new ItemPedido(3, pedido2, produto3));
-					
-					pedido2.setStatus(StatusPedido.PAGO);
-					
-					if (contCancelamento == 0) {
-						em.getTransaction().begin();
-						pedidoDao.cadastrar(pedido);
-						pedidoDao.cadastrar(pedido2);
-						em.getTransaction().commit();
-						//controlador para fins de não cadastrar novamente no banco de dados e continuar cancelando os pedidos até tornar a lista vazia
-						contCancelamento ++;
-					}
-				
-					List<Pedido> pedidosPendentes = pedidoDao.buscarPedidosPendentes(StatusPedido.PENDENTE);
-					List<Pedido> pedidosPagos = pedidoDao.buscarPedidosPendentes(StatusPedido.PAGO);
-					
-					if (pedidosPendentes.isEmpty() && pedidosPagos.isEmpty()) {
-						System.out.println();
-						System.out.println("Você não possui pedidos a serem cancelados");
-						System.out.println();
-					} else {
-						
-						if (!pedidosPendentes.isEmpty()) {
-							pedidoDao.imprimirPedidos(pedidosPendentes);
-						}
-						
-						if (!pedidosPagos.isEmpty()) {
-							pedidoDao.imprimirPedidos(pedidosPagos);
-						}
-						
-						System.out.println("Digite o numero do pedido que deseja cancelar");
-						long optPagamento = leitor.nextLong();
-						
-						Pedido pedidoCancelamento = pedidoDao.buscarPorId(optPagamento);
-						List<ItemPedido> itens = pedidoCancelamento.getItens();
-						
-						System.out.println("O pedido número: " + optPagamento + " tem os seguintes itens:");
-						System.out.println("------------------------------------------------------------------");
-						for (ItemPedido i : itens) {
-							String nome = i.getProduto().getNome();
-							String descricao = i.getProduto().getDescricao();
-							int qtdItens = i.getQuantidade();
-							BigDecimal valorUnitario = i.getPrecoUnitario();
-							System.out.println("Quantidade: " + qtdItens + " | Valor Unitário: R$ " + valorUnitario + " | Item: " + nome + " " + descricao );
-							System.out.println("------------------------------------------------------------------");
-						}
-						
-						System.out.println("Tem certeza que deseja cancelar este pedido ? 1 para SIM, Qualquer para não");
-						int optCancelamentoConfirm = leitor.nextInt();
-						
-						if (optCancelamentoConfirm == 1) {
-							pedidoCancelamento.cancelarPedido();
+						else if (optUsuario == 3) {
 							
-							em.getTransaction().begin();
-							pedidoDao.atualizar(pedidoCancelamento);
-							em.getTransaction().commit();
+							/* 
+							 * Mocks para fins testar o cancelamento dos pedidos, caso queira obter mais testes basta incluir mais mocks 
+							 * de pedidos, produtos e/ou clientes ou cadastrar manu
+							*/
 							
-							System.out.println("Você cancelou o pedido numero " +  optPagamento + " com o Valor de: R$" + pedido.getValorTotal());
+							Produto produto2 = produtoDao.buscarPorId(2l);
+							Produto produto3 = produtoDao.buscarPorId(3l);
+		
+							Pedido pedido = new Pedido(clienteTeste);
+							Pedido pedido2 = new Pedido(clienteTeste);
 							
-							pedidosPendentes = pedidoDao.buscarPedidosPendentes(StatusPedido.PENDENTE);
-							pedidosPagos = pedidoDao.buscarPedidosPendentes(StatusPedido.PAGO);
+							pedido.adicionarItem(new ItemPedido(2, pedido, produto2));
+							pedido2.adicionarItem(new ItemPedido(3, pedido2, produto3));
 							
-							if (!pedidosPendentes.isEmpty()) {
-								pedidoDao.imprimirPedidos(pedidosPendentes);
+							pedido2.setStatus(StatusPedido.PAGO);
+							
+							if (contCancelamento == 0) {
+								em.getTransaction().begin();
+								pedidoDao.cadastrar(pedido);
+								pedidoDao.cadastrar(pedido2);
+								em.getTransaction().commit();
+								//controlador para fins de não cadastrar novamente no banco de dados e continuar cancelando os pedidos até tornar a lista vazia
+								contCancelamento ++;
 							}
-							if (!pedidosPagos.isEmpty()) {
-								pedidoDao.imprimirPedidos(pedidosPagos);
-							} else {
+						
+							List<Pedido> pedidosPendentes = pedidoDao.buscarPedidosPendentes(StatusPedido.PENDENTE);
+							List<Pedido> pedidosPagos = pedidoDao.buscarPedidosPendentes(StatusPedido.PAGO);
+							
+							if (pedidosPendentes.isEmpty() && pedidosPagos.isEmpty()) {
+								System.out.println();
 								System.out.println("Você não possui pedidos a serem cancelados");
+								System.out.println();
+							} else {
+								
+								if (!pedidosPendentes.isEmpty()) {
+									pedidoDao.imprimirPedidos(pedidosPendentes);
+								}
+								
+								if (!pedidosPagos.isEmpty()) {
+									pedidoDao.imprimirPedidos(pedidosPagos);
+								}
+								
+								System.out.println("Digite o numero do pedido que deseja cancelar");
+								long optPagamento = leitor.nextLong();
+								
+								Pedido pedidoCancelamento = pedidoDao.buscarPorId(optPagamento);
+								List<ItemPedido> itens = pedidoCancelamento.getItens();
+								
+								System.out.println("O pedido número: " + optPagamento + " tem os seguintes itens:");
+								System.out.println("------------------------------------------------------------------");
+								for (ItemPedido i : itens) {
+									String nome = i.getProduto().getNome();
+									String descricao = i.getProduto().getDescricao();
+									int qtdItens = i.getQuantidade();
+									BigDecimal valorUnitario = i.getPrecoUnitario();
+									System.out.println("Quantidade: " + qtdItens + " | Valor Unitário: R$ " + valorUnitario + " | Item: " + nome + " " + descricao );
+									System.out.println("------------------------------------------------------------------");
+								}
+								
+								System.out.println("Tem certeza que deseja cancelar este pedido ? 1 para SIM, Qualquer para não");
+								int optCancelamentoConfirm = leitor.nextInt();
+								
+								if (optCancelamentoConfirm == 1) {
+									pedidoCancelamento.cancelarPedido();
+									
+									em.getTransaction().begin();
+									pedidoDao.atualizar(pedidoCancelamento);
+									em.getTransaction().commit();
+									
+									System.out.println("Você cancelou o pedido numero " +  optPagamento + " com o Valor de: R$" + pedido.getValorTotal());
+									
+									pedidosPendentes = pedidoDao.buscarPedidosPendentes(StatusPedido.PENDENTE);
+									pedidosPagos = pedidoDao.buscarPedidosPendentes(StatusPedido.PAGO);
+									
+									if (!pedidosPendentes.isEmpty()) {
+										pedidoDao.imprimirPedidos(pedidosPendentes);
+									}
+									if (!pedidosPagos.isEmpty()) {
+										pedidoDao.imprimirPedidos(pedidosPagos);
+									} else {
+										System.out.println("Você não possui pedidos a serem cancelados");
+									}
+								}
 							}
 						}
+						
+						else {
+							System.out.println("Sistema encerrado com sucesos");
+							break;
+						}
+						
 					}
 				}
-				
-				else {
-					System.out.println("Sistema encerrado com sucesos");
-					break;
-				}
-				
+			} else {
+				System.out.println("Usuário o senha incorreta, por favor tente novamente!");
 			}
+		} catch (NullPointerException e) {
+			System.out.println("Usuário o senha incorreta, por favor tente novamente");
 		}
-		
 		
 	}
 	
@@ -334,14 +346,14 @@ public class CadastroDePedido {
 		Date date7 = new Date(12, 02, 2000);
 		
 		
-		Cliente cliente = new Cliente("Yago Augusto", "20392432080", date, endereco );
-		Cliente cliente1 = new Cliente("Erika Caroline", "03631279094", date1, endereco );
-		Cliente cliente2 = new Cliente("Eduarda Camile", "07976907000", date2, endereco );
-		Cliente cliente3 = new Cliente("Yasmin Guedes", "22457912075", date3, endereco3 );
-		Cliente cliente4 = new Cliente("Cleide Maria", "84608121030", date4, endereco2);
-		Cliente cliente5 = new Cliente("Jose Carlos", "96105819005", date5, endereco3);
-		Cliente cliente6 = new Cliente("Val Lins", "51206817003", date6, endereco5);
-		Cliente cliente7 = new Cliente("Marianne", "27183061060", date7, endereco4);
+		Cliente cliente = new Cliente("gutoyago","testejava", "Yago Augusto", "20392432080", date, endereco );
+		Cliente cliente1 = new Cliente("erikacarolis","testejava","Erika Caroline", "03631279094", date1, endereco );
+		Cliente cliente2 = new Cliente("dudacamile","testejava","Eduarda Camile", "07976907000", date2, endereco );
+		Cliente cliente3 = new Cliente("yayaguedes","testejava","Yasmin Guedes", "22457912075", date3, endereco3 );
+		Cliente cliente4 = new Cliente("marycleide","testejava","Cleide Maria", "84608121030", date4, endereco2);
+		Cliente cliente5 = new Cliente("zecarlos12","testejava","Jose Carlos", "96105819005", date5, endereco3);
+		Cliente cliente6 = new Cliente("vallins","testejava","Val Lins", "51206817003", date6, endereco5);
+		Cliente cliente7 = new Cliente("marimilene","testejava","Marianne Milene", "27183061060", date7, endereco4);
 		
 		
 		EntityManager em = JPAUtil.getEntityManager();
