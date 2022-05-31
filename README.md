@@ -36,6 +36,8 @@ seguem abaixo a tabela:
 
 6. Você pode mockar qualquer atributo que quiser cadastrando manualmente ou inserindo a instância e persistência no método `popularBancoDeDados()`.
 7. bons testes.
+8. <hr>
+Visite também: <a href="https://github.com/yagoal/ProjetoE-Commerce"> Front-End Ecommerce </a>
 
 
 
