@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import model.Cliente;
 import model.Pedido;
 //import br.com.alura.loja.vo.RelatorioDeVendasVo;
 import model.Produto;
@@ -41,7 +42,12 @@ public class PedidoDao {
 				.getSingleResult();
 	}
 	
-	public List<Pedido> buscarPedidosPendentes (StatusPedido statusPedido) {
+	public List<Pedido> buscarTodos() {
+		String jpql = "SELECT p FROM Produto p";
+		return em.createQuery(jpql, Pedido.class).getResultList();
+	}
+	
+	public List<Pedido> buscarPedidosPorStatus (StatusPedido statusPedido) {
 		String jpql = "SELECT p FROM Pedido as p WHERE p.statusPedido = :statusPedido";
 		return em.createQuery(jpql, Pedido.class)
 				.setParameter("statusPedido", statusPedido)
@@ -53,7 +59,7 @@ public class PedidoDao {
 		System.out.println("Pedidos: ");
 		System.out.println("---------------------------------------------------");
 		for (Pedido p : pedidos) {
-			String aux = p.getStatus().toString().toLowerCase();
+			String aux = p.getStatusPedido().toString().toLowerCase();
 			System.out.println("id: " + p.getId() + " | "
 					+ "Valor Total: R$ " + p.getValorTotal() 
 					+ " | Status: " + aux.substring(0,1).toUpperCase().concat(aux.substring(1))

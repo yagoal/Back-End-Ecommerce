@@ -27,8 +27,8 @@ public class FuncionarioDao {
 		this.em.remove(funcionario);
 	}
 	
-	public Funcionario buscarPorId(String id) {
-		return em.find(Funcionario.class, id);
+	public Funcionario buscarPorId(String usuario) {
+		return em.find(Funcionario.class, usuario);
 	}
 	
 	public List<Funcionario> buscarTodos() {

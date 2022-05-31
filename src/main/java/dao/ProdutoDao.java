@@ -48,7 +48,7 @@ public class ProdutoDao {
 		System.out.println("-------------------------------------------------------------------------");
 		for (Produto p : produtos) {
 			
-			System.out.println("id: " + p.getId()+ "| Quantidade Disponível: " + p.getQtd() + "| Produto: " + p.getNome() + " " + p.getDescricao());
+			System.out.println("id: " + p.getId()+ "| Quantidade Disponível: " + p.getQtd() + "| Produto: " + p.getNome() + " " + p.getDescricao() + " " + p.getPreco());
 			System.out.println("-------------------------------------------------------------------------");
 		}
 	}

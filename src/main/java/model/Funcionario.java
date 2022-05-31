@@ -13,8 +13,8 @@ public class Funcionario extends Usuario {
 		super();
 	}
 
-	public Funcionario(Integer nivelDeAcesso) {
-		super();
+	public Funcionario(String usuario, String senha, String nome, String cpf, Integer nivelDeAcesso) {
+		super(usuario, senha, nome, cpf);
 		this.nivelDeAcesso = nivelDeAcesso;
 	}
 	

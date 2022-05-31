@@ -49,25 +49,47 @@ public class Pedido {
 		this.cliente = cliente;
 	}
 	
-	public void pagarPedido () throws InterruptedException {
+	public boolean pagarPedido () throws InterruptedException {
+		if (statusPagamento == StatusPagamento.CANCELADO || statusPedido == StatusPedido.CANCELADO) {
+			System.out.println("Não é possivel pagar um pedido cancelado");
+			return false;
+		}
+		
 		System.out.println("Aguarde um momento para finalizarmos o pagamento");
 		Thread.sleep(5000);
 		this.statusPagamento = StatusPagamento.PAGO;
 		this.statusPedido = StatusPedido.PAGO;
 		System.out.println("Pagamento no valor de R$" + this.valorTotal + " Realizado com Sucesso!");
 		System.out.println("Em breve você receberá seu pedido no seguinte endereço: " + this.enderecoPedido());
+		return true;
 	}
 	
-	public void cancelarPedido() {
+	public boolean cancelarPedido() {
 		
 		if (this.statusPagamento == StatusPagamento.PAGO) {
 			System.out.println("Seus pedido escolhido para cancelar encontra-se como pago, em até 8 dias úteis o valor será reembolsado via Pix ou Estornado no seu cartão de crédito");
 		}
 		
+		if(this.statusPedido == StatusPedido.ENVIADO || this.statusPedido == StatusPedido.ENTREGUE) {
+			System.out.println("Não é possível cancelar esse pedido");
+			return false;
+		}
+		
 		this.statusPagamento = StatusPagamento.CANCELADO;
 		this.statusPedido = StatusPedido.CANCELADO;
 		System.out.println("Pedido cancelado com sucesso");
+		return true;
 		
+	}
+	
+	public boolean enviarPedido() {
+		if (this.statusPagamento == StatusPagamento.PAGO && statusPedido == StatusPedido.PAGO) {
+			this.statusPedido = StatusPedido.ENVIADO;
+			System.out.println("Pedido Enviado com Suceso para o endereço " + enderecoPedido());
+			return true;
+		}
+		System.out.println("Só podem ser enviados produtos pagos");
+		return false;
 	}
 	
 	public String enderecoPedido () {
@@ -82,6 +104,8 @@ public class Pedido {
 		item.setPedido(this);
 		this.getItens().add(item);
 		this.valorTotal = this.valorTotal.add(item.getValor());
+		int qtdAtual = item.getProduto().getQtd();
+		item.getProduto().setQtd(qtdAtual--);
 	}
 
 	public Long getId() {
@@ -104,12 +128,17 @@ public class Pedido {
 		return data;
 	}
 	
-	public StatusPedido getStatus() {
+	public StatusPedido getStatusPedido() {
 		return statusPedido;
 	}
 
-	public void setStatus(StatusPedido statusPedido) {
+	public void setStatusPedido(StatusPedido statusPedido) {
 		this.statusPedido = statusPedido;
+	}
+	
+	public void setStatus (StatusPedido statusPedido, StatusPagamento statusPagamento ) {
+		this.statusPedido = statusPedido;
+		this.statusPagamento = statusPagamento;
 	}
 	
 	public StatusPagamento getStatusPagamento() {
